@@ -66,6 +66,8 @@ export class LedgerUser extends User {
     }
     console.log(`Ledger: Found ${permissionName} key at index ${addressIndex}`)
 
+    if(!permissionName) throw new UALError(`Could not find keys in Ledger for account`, UALErrorType.Initialization, null, `Ledger`)
+
     this.signatureProvider.addressIndex = addressIndex
     // @ts-ignore
     this.requestPermission = permissionName
