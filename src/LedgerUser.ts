@@ -39,10 +39,13 @@ export class LedgerUser extends User {
     const rpcEndpointString = `${rpcEndpoint.protocol}://${rpcEndpoint.host}:${rpcEndpoint.port}`
     this.rpc = new JsonRpc(rpcEndpointString)
     
+    let account
     let addressIndex = 0
     let permissionName = ``
     // find Ledger addressIndex
-    const account = await this.rpc.get_account(this.accountName)
+    try {
+      account = await this.rpc.get_account(this.accountName)
+    } catch {}
     if(!account) throw new UALError(`Account does not exist`, UALErrorType.Initialization, null, `Ledger`)
 
     const [ownerKeys, activeKeys] = this.extractAccountKeys(account)
