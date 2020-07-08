@@ -767,6 +767,22 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
+"@deltalabs/eosjs-ledger-signature-provider@^0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@deltalabs/eosjs-ledger-signature-provider/-/eosjs-ledger-signature-provider-0.2.0.tgz#5afc36dd2aa6ecbb2c39552fd9aadc7cdba752e8"
+  integrity sha512-4XE6NWe5hBZyKY04bhUHYycWzEkZ6oGKgUhrUnLSxGSYRS+YFBevs9ErPSUsP5O5DIEI6Of4UhJPoJ7VcHGaPw==
+  dependencies:
+    "@babel/core" "7.6.0"
+    "@babel/preset-env" "7.2.3"
+    "@babel/preset-react" "7.0.0"
+    "@ledgerhq/hw-transport" "4.48.0"
+    "@ledgerhq/hw-transport-u2f" "4.48.0"
+    asn1-ber "1.0.9"
+    bip32-path "0.4.2"
+    buffer "5.2.1"
+    eosjs "20.0.0"
+    eosjs-ecc "4.0.4"
+
 "@istanbuljs/load-nyc-config@^1.0.0":
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@istanbuljs/load-nyc-config/-/load-nyc-config-1.1.0.tgz#fd3db1d59ecf7cf121e80650bb86712f9b55eced"
@@ -2044,22 +2060,6 @@ eosjs-ecc@4.0.7:
     create-hmac "1.1.6"
     ecurve "1.0.5"
     randombytes "2.0.5"
-
-eosjs-ledger-signature-provider@0.1.2:
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/eosjs-ledger-signature-provider/-/eosjs-ledger-signature-provider-0.1.2.tgz#47a131eb9d1a28c0bb77387b58c93c92102dcda6"
-  integrity sha512-mnvhRfJVnHt3fOwYnW+KketVOkaHiEE6vmNEPjO3spZBXgC8nZ7XF92L4R6Wgeb2nupt78Ww38HOlFT4/GQHWw==
-  dependencies:
-    "@babel/core" "7.6.0"
-    "@babel/preset-env" "7.2.3"
-    "@babel/preset-react" "7.0.0"
-    "@ledgerhq/hw-transport" "4.48.0"
-    "@ledgerhq/hw-transport-u2f" "4.48.0"
-    asn1-ber "1.0.9"
-    bip32-path "0.4.2"
-    buffer "5.2.1"
-    eosjs "20.0.0"
-    eosjs-ecc "4.0.4"
 
 eosjs@20.0.0:
   version "20.0.0"

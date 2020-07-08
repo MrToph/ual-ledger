@@ -1,5 +1,5 @@
 {
-  "name": "ual-ledger",
+  "name": "@deltalabs/ual-ledger",
   "version": "0.3.0",
   "main": "dist/index.js",
   "license": "MIT",
@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "eosjs": "20.0.3",
-    "eosjs-ledger-signature-provider": "0.1.2",
+    "@deltalabs/eosjs-ledger-signature-provider": "^0.2.0",
     "universal-authenticator-library": "0.3.0"
   },
   "devDependencies": {

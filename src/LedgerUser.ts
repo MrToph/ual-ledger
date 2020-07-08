@@ -1,10 +1,10 @@
 import { Api, JsonRpc } from 'eosjs'
-import { SignatureProvider } from 'eosjs-ledger-signature-provider'
+import { SignatureProvider } from '@deltalabs/eosjs-ledger-signature-provider'
 import {
   TextDecoder as NodeTextDecoder,
   TextEncoder as NodeTextEncoder,
 } from 'text-encoding'
-import { Chain, SignTransactionResponse, UALErrorType, User } from 'universal-authenticator-library'
+import { Chain, SignTransactionResponse, UALErrorType, User, UALError } from 'universal-authenticator-library'
 
 import { Name } from './interfaces'
 import { UALLedgerError } from './UALLedgerError'
@@ -38,6 +38,37 @@ export class LedgerUser extends User {
     const rpcEndpoint = this.chain.rpcEndpoints[0]
     const rpcEndpointString = `${rpcEndpoint.protocol}://${rpcEndpoint.host}:${rpcEndpoint.port}`
     this.rpc = new JsonRpc(rpcEndpointString)
+    
+    let addressIndex = 0
+    let permissionName = ``
+    // find Ledger addressIndex
+    const account = await this.rpc.get_account(this.accountName)
+    if(!account) throw new UALError(`Account does not exist`, UALErrorType.Initialization, null, `Ledger`)
+
+    const [ownerKeys, activeKeys] = this.extractAccountKeys(account)
+    console.log(`Ledger: Searching for owner keys (${ownerKeys.join(`, `)}) or active keys (${activeKeys.join(`, `)})`)
+    try {
+      for(let i = 0; i < 20; i++) {
+        const ledgerKeys:string[] = await this.signatureProvider.getAvailableKeys(false, [i])
+        console.log(`Ledger: Checking Index ${i}`, ledgerKeys.join(` `))
+        if(ownerKeys.some((key) => ledgerKeys.includes(key))) {
+          addressIndex = i;
+          permissionName = `owner`
+          break;
+        } else if(activeKeys.some((key) => ledgerKeys.includes(key))) {
+          addressIndex = i;
+          permissionName = `active`
+          break;
+        } 
+      }
+    } catch (error) {
+      throw new UALError(error.message, UALErrorType.Initialization, null, `Ledger`)
+    }
+    console.log(`Ledger: Found ${permissionName} key at index ${addressIndex}`)
+
+    this.signatureProvider.addressIndex = addressIndex
+    // @ts-ignore
+    this.requestPermission = permissionName
     this.api = new Api({
       rpc: this.rpc,
       signatureProvider: this.signatureProvider,
@@ -102,11 +133,12 @@ export class LedgerUser extends User {
   public async isAccountValid(): Promise<boolean> {
     try {
       const account = this.rpc && await this.rpc.get_account(this.accountName)
-      const actualKeys = this.extractAccountKeys(account)
-      const authorizationKeys = await this.getKeys()
+      const [ownerKeys, activeKeys] = this.extractAccountKeys(account)
+      const actualKeys = [...ownerKeys, ...activeKeys]
+      const ledgerKeys = await this.getKeys()
 
       return actualKeys.filter((key) => {
-        return authorizationKeys.indexOf(key) !== -1
+        return ledgerKeys.indexOf(key) !== -1
       }).length > 0
     } catch (e) {
       if (e.constructor.name === 'UALLedgerError') {
@@ -120,12 +152,13 @@ export class LedgerUser extends User {
     }
   }
 
-  private extractAccountKeys(account: any): string[] {
-    const keySubsets = account.permissions.map((permission) => permission.required_auth.keys.map((key) => key.key))
-    let keys = []
-    for (const keySubset of keySubsets) {
-      keys = keys.concat(keySubset)
-    }
-    return keys
+  private extractAccountKeys(account: any): string[][] {
+    const ownerPerm = account.permissions.find(({ perm_name }) => perm_name === `owner`)
+    const activePerm = account.permissions.find(({ perm_name }) => perm_name === `active`)
+    const perm2Keys = perm => perm.required_auth.keys.map((key) => key.key)
+
+    let ownerKeys = ownerPerm ? perm2Keys(ownerPerm) : []
+    let activeKeys = activePerm ? perm2Keys(activePerm) : []
+    return [ownerKeys, activeKeys]
   }
 }
